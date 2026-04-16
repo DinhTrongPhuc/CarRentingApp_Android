@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CarRenting</string>
+    <string name="login">Đăng nhập</string>
+    <string name="register">Đăng ký</string>
+    <string name="email">Email</string>
+    <string name="password">Mật khẩu</string>
+    <string name="full_name">Họ và tên</string>
+    <string name="phone">Số điện thoại</string>
+    <string name="car_name">Tên xe</string>
+    <string name="brand">Hãng xe</string>
+    <string name="license_plate">Biển số xe</string>
+    <string name="location">Địa điểm</string>
+    <string name="price_per_day">Giá thuê/ngày (VNĐ)</string>
+    <string name="description">Mô tả</string>
+    <string name="post_car">Đăng xe</string>
+    <string name="book_now">Đặt xe ngay</string>
+    <string name="contact_owner">Liên hệ chủ xe</string>
+    <string name="save_car">Lưu xe</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="no_cars_found">Không tìm thấy xe</string>
+    <string name="image_not_available">Ảnh không khả dụng</string>
+    <string name="booking_history">Lịch sử đặt xe</string>
+    <string name="my_cars">Xe của tôi</string>
+    <string name="search_hint">Tìm theo địa điểm hoặc loại xe...</string>
+    <string name="confirm_payment">Xác nhận thanh toán</string>
+    <string name="payment_processing">Đang xử lý thanh toán...</string>
+    <string name="booking_success">Đặt xe thành công!</string>
+</resources>
