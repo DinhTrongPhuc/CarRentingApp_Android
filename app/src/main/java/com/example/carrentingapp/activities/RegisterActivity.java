@@ -3,6 +3,7 @@ package com.example.carrentingapp.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.carrentingapp.databinding.ActivityRegisterBinding;
@@ -22,8 +23,22 @@ public class RegisterActivity extends AppCompatActivity {
         binding = ActivityRegisterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Initial visibility for renter-specific fields
+        toggleRenterFields(binding.rbRenter.isChecked());
+
+        binding.rgRole.setOnCheckedChangeListener((group, checkedId) -> {
+            toggleRenterFields(checkedId == binding.rbRenter.getId());
+        });
+
         binding.btnRegister.setOnClickListener(v -> doRegister());
         binding.tvGoLogin.setOnClickListener(v -> finish());
+    }
+
+    private void toggleRenterFields(boolean isRenter) {
+        int visibility = isRenter ? View.VISIBLE : View.GONE;
+        binding.tilAge.setVisibility(visibility);
+        binding.tilDriverLicense.setVisibility(visibility);
+        binding.tilLicenseExpiration.setVisibility(visibility);
     }
 
     private void doRegister() {
@@ -32,9 +47,6 @@ public class RegisterActivity extends AppCompatActivity {
         String phone = binding.etPhone.getText().toString().trim();
         String password = binding.etPassword.getText().toString().trim();
         String confirmPwd = binding.etConfirmPassword.getText().toString().trim();
-        String ageStr = binding.etAge.getText().toString().trim();
-        String driverLicense = binding.etDriverLicense.getText().toString().trim();
-        String licenseExpiration = binding.etLicenseExpiration.getText().toString().trim();
         String role = binding.rbOwner.isChecked() ? Constants.ROLE_OWNER : Constants.ROLE_RENTER;
 
         boolean valid = true;
@@ -48,16 +60,27 @@ public class RegisterActivity extends AppCompatActivity {
         else binding.tilPassword.setError(null);
         if (!password.equals(confirmPwd)) { binding.tilConfirmPassword.setError("Mật khẩu không khớp"); valid = false; }
         else binding.tilConfirmPassword.setError(null);
-        if (!ValidationUtils.isNotEmpty(ageStr)) { binding.tilAge.setError("Vui lòng nhập tuổi"); valid = false; }
-        else binding.tilAge.setError(null);
-        if (!ValidationUtils.isNotEmpty(driverLicense)) { binding.tilDriverLicense.setError("Vui lòng nhập số bằng lái"); valid = false; }
-        else binding.tilDriverLicense.setError(null);
-        if (!ValidationUtils.isNotEmpty(licenseExpiration)) { binding.tilLicenseExpiration.setError("Vui lòng nhập hạn bằng lái"); valid = false; }
-        else binding.tilLicenseExpiration.setError(null);
-        if (!valid) return;
 
-        int age;
-        try { age = Integer.parseInt(ageStr); } catch (NumberFormatException e) { binding.tilAge.setError("Tuổi không hợp lệ"); return; }
+        int age = 0;
+        String driverLicense = "";
+        String licenseExpiration = "";
+
+        if (role.equals(Constants.ROLE_RENTER)) {
+            String ageStr = binding.etAge.getText().toString().trim();
+            driverLicense = binding.etDriverLicense.getText().toString().trim();
+            licenseExpiration = binding.etLicenseExpiration.getText().toString().trim();
+
+            if (!ValidationUtils.isNotEmpty(ageStr)) { binding.tilAge.setError("Vui lòng nhập tuổi"); valid = false; }
+            else {
+                try { age = Integer.parseInt(ageStr); binding.tilAge.setError(null); } catch (NumberFormatException e) { binding.tilAge.setError("Tuổi không hợp lệ"); valid = false; }
+            }
+            if (!ValidationUtils.isNotEmpty(driverLicense)) { binding.tilDriverLicense.setError("Vui lòng nhập số bằng lái"); valid = false; }
+            else binding.tilDriverLicense.setError(null);
+            if (!ValidationUtils.isNotEmpty(licenseExpiration)) { binding.tilLicenseExpiration.setError("Vui lòng nhập hạn bằng lái"); valid = false; }
+            else binding.tilLicenseExpiration.setError(null);
+        }
+
+        if (!valid) return;
 
         setLoading(true);
         authRepo.register(email, password, fullName, phone, role, age, driverLicense, licenseExpiration, new AuthRepository.AuthCallback() {
@@ -69,7 +92,6 @@ public class RegisterActivity extends AppCompatActivity {
             }
             @Override public void onFailure(String errorMsg) {
                 setLoading(false);
-                // FR1.5
                 Toast.makeText(RegisterActivity.this, errorMsg, Toast.LENGTH_LONG).show();
             }
         });

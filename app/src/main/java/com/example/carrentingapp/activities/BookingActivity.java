@@ -1,8 +1,11 @@
 package com.example.carrentingapp.activities;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.carrentingapp.R;
@@ -43,6 +46,15 @@ public class BookingActivity extends AppCompatActivity {
 
         loadCarInfo(carId);
         binding.btnSelectDates.setOnClickListener(v -> showDateRangePicker());
+
+        // Initialize terms and conditions checkbox and button state
+        binding.btnProceedPayment.setEnabled(false);
+        binding.cbTermsConditions.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.btnProceedPayment.setEnabled(isChecked);
+        });
+
+        binding.tvTermsConditionsLink.setOnClickListener(v -> showTermsAndConditionsDialog());
+
         binding.btnProceedPayment.setOnClickListener(v -> validateAndBook());
     }
 
@@ -60,7 +72,6 @@ public class BookingActivity extends AppCompatActivity {
     }
 
     private void showDateRangePicker() {
-        // FR8.1
         CalendarConstraints constraints = new CalendarConstraints.Builder()
             .setValidator(DateValidatorPointForward.now()).build();
         MaterialDatePicker<androidx.core.util.Pair<Long, Long>> picker = MaterialDatePicker.Builder
@@ -79,7 +90,6 @@ public class BookingActivity extends AppCompatActivity {
     private void updateDateDisplay() {
         binding.tvStartDate.setText(FormatUtils.formatDate(selectedStartDate));
         binding.tvEndDate.setText(FormatUtils.formatDate(selectedEndDate));
-        // FR8.3
         long days = FormatUtils.daysBetween(selectedStartDate, selectedEndDate);
         if (days <= 0) days = 1;
         double total = FormatUtils.calculateTotal(currentCar.getPricePerDay(), (int) days);
@@ -88,13 +98,46 @@ public class BookingActivity extends AppCompatActivity {
         binding.cardSummary.setVisibility(View.VISIBLE);
     }
 
+    private void showTermsAndConditionsDialog() {
+        // Dummy terms and conditions content
+        String termsContent = "Điều khoản và Điều kiện thuê xe:\n\n" +
+            "1. Trách nhiệm của người thuê:\n" +
+            "   - Người thuê phải đảm bảo đủ điều kiện pháp lý để lái xe (tuổi, bằng lái hợp lệ).\n" +
+            "   - Chịu trách nhiệm về mọi vi phạm giao thông, tai nạn gây ra trong thời gian thuê xe.\n" +
+            "   - Bồi thường thiệt hại cho xe nếu xảy ra sự cố do lỗi của người thuê, theo mức độ thiệt hại thực tế.\n" +
+            "   - Giữ gìn vệ sinh, bảo quản xe như tài sản của mình.\n\n" +
+            "2. Quy định sử dụng xe:\n" +
+            "   - Không được phép sử dụng xe vào mục đích bất hợp pháp (đua xe, vận chuyển hàng cấm,...)\n" +
+            "   - Không được phép cho thuê lại xe dưới mọi hình thức.\n" +
+            "   - Không được phép tự ý sửa chữa hoặc thay đổi cấu trúc xe.\n" +
+            "   - Tuân thủ giới hạn quãng đường (nếu có) và thời gian thuê xe đã cam kết.\n\n" +
+            "3. Miễn trừ trách nhiệm của chủ xe:\n" +
+            "   - Chủ xe không chịu trách nhiệm về bất kỳ thiệt hại nào phát sinh từ việc sử dụng xe của người thuê, bao gồm nhưng không giới hạn ở tai nạn giao thông, mất cắp tài sản cá nhân trong xe.\n" +
+            "   - Chủ xe cam kết xe trong tình trạng hoạt động tốt tại thời điểm giao xe. Bất kỳ hỏng hóc nào phát sinh sau đó do lỗi của người thuê sẽ thuộc trách nhiệm của người thuê.\n\n" +
+            "4. Hủy đặt xe:\n" +
+            "   - Chính sách hủy sẽ được áp dụng tùy thuộc vào thời điểm hủy và thỏa thuận ban đầu.";
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Điều khoản và Điều kiện");
+        // Make the TextView scrollable
+        TextView messageView = new TextView(this);
+        messageView.setText(termsContent);
+        messageView.setPadding(40, 40, 40, 40);
+        messageView.setMovementMethod(new ScrollingMovementMethod());
+        builder.setView(messageView);
+        builder.setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
     private void validateAndBook() {
         if (selectedStartDate == 0 || selectedEndDate == 0) {
             Toast.makeText(this, "Vui lòng chọn ngày thuê", Toast.LENGTH_SHORT).show(); return;
         }
+        if (!binding.cbTermsConditions.isChecked()) {
+            Toast.makeText(this, "Vui lòng đọc và đồng ý với điều khoản và điều kiện", Toast.LENGTH_SHORT).show(); return;
+        }
         if (currentCar == null) return;
-        binding.progressBar.setVisibility(View.VISIBLE);
-        binding.btnProceedPayment.setEnabled(false);
+        setLoading(true);
 
         // Directly proceed to booking to bypass potential permission errors on conflict check
         createBookingAndPay();
@@ -128,24 +171,28 @@ public class BookingActivity extends AppCompatActivity {
                 // Now confirm it immediately
                 bookingRepo.confirmPayment(bookingId, "Thanh toán nhanh", new BookingRepository.ActionCallback() {
                     @Override public void onSuccess(String id) {
-                        binding.progressBar.setVisibility(View.GONE);
+                        setLoading(false);
                         Toast.makeText(BookingActivity.this, "Đặt xe thành công!", Toast.LENGTH_LONG).show();
                         finish();
                     }
                     @Override public void onFailure(String error) {
                         // Even if update fails, we created it, so let's call it a success for the user
-                        binding.progressBar.setVisibility(View.GONE);
+                        setLoading(false);
                         Toast.makeText(BookingActivity.this, "Đã lưu đơn thuê!", Toast.LENGTH_LONG).show();
                         finish();
                     }
                 });
             }
             @Override public void onFailure(String error) {
-                binding.progressBar.setVisibility(View.GONE);
-                binding.btnProceedPayment.setEnabled(true);
+                setLoading(false);
                 Toast.makeText(BookingActivity.this, "Lỗi tạo đơn: " + error, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void setLoading(boolean loading) {
+        binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
+        binding.btnProceedPayment.setEnabled(!loading && binding.cbTermsConditions.isChecked());
     }
 
     @Override public boolean onSupportNavigateUp() { finish(); return true; }
