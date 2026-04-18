@@ -61,9 +61,10 @@ public class Constants {
     public static final double PRICE_WARNING_THRESHOLD = 5_000_000;
 
     // Cloudinary Config (Thay thế các giá trị này bằng account của bạn)
-    public static final String CLOUD_NAME = "dxff8nkx6";
-    public static final String API_KEY = "749374789184881";
-    public static final String API_SECRET = "fxb1M5IjoTFRmU2ke-DlFQD8yRc";
+    // SECURITY: Never commit real credentials! Use environment variables or local.properties
+    public static final String CLOUD_NAME = "YOUR_CLOUD_NAME";
+    public static final String API_KEY = "YOUR_API_KEY";
+    public static final String API_SECRET = "YOUR_API_SECRET";
 
     // Roles
     public static final String ROLE_OWNER = "owner";
