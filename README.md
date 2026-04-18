@@ -110,7 +110,7 @@ Vào **Firestore → Indexes → Composite** và tạo các index sau:
 | bookings | renterId ASC, createdAt DESC | |
 | bookings | ownerId ASC, createdAt DESC | |
 | bookings | carId ASC, status ASC | |
-| saved_cars | userId ASC | |
+| saved_cars | userId ASC, none DESC | |
 
 > 💡 Hoặc chạy app, khi gặp lỗi Firestore sẽ log URL để tạo index tự động.
 
