@@ -62,7 +62,7 @@
         <!-- Google Maps API Key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDCWg5reP3WbgxfHqPV3yFJy3eWK72hXsY" />
+            android:value="Your_Google_Maps_API_Key" />
 
     </application>
 </manifest>
