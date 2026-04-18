@@ -32,6 +32,9 @@ public class RegisterActivity extends AppCompatActivity {
         String phone = binding.etPhone.getText().toString().trim();
         String password = binding.etPassword.getText().toString().trim();
         String confirmPwd = binding.etConfirmPassword.getText().toString().trim();
+        String ageStr = binding.etAge.getText().toString().trim();
+        String driverLicense = binding.etDriverLicense.getText().toString().trim();
+        String licenseExpiration = binding.etLicenseExpiration.getText().toString().trim();
         String role = binding.rbOwner.isChecked() ? Constants.ROLE_OWNER : Constants.ROLE_RENTER;
 
         boolean valid = true;
@@ -45,13 +48,22 @@ public class RegisterActivity extends AppCompatActivity {
         else binding.tilPassword.setError(null);
         if (!password.equals(confirmPwd)) { binding.tilConfirmPassword.setError("Mật khẩu không khớp"); valid = false; }
         else binding.tilConfirmPassword.setError(null);
+        if (!ValidationUtils.isNotEmpty(ageStr)) { binding.tilAge.setError("Vui lòng nhập tuổi"); valid = false; }
+        else binding.tilAge.setError(null);
+        if (!ValidationUtils.isNotEmpty(driverLicense)) { binding.tilDriverLicense.setError("Vui lòng nhập số bằng lái"); valid = false; }
+        else binding.tilDriverLicense.setError(null);
+        if (!ValidationUtils.isNotEmpty(licenseExpiration)) { binding.tilLicenseExpiration.setError("Vui lòng nhập hạn bằng lái"); valid = false; }
+        else binding.tilLicenseExpiration.setError(null);
         if (!valid) return;
 
+        int age;
+        try { age = Integer.parseInt(ageStr); } catch (NumberFormatException e) { binding.tilAge.setError("Tuổi không hợp lệ"); return; }
+
         setLoading(true);
-        authRepo.register(email, password, fullName, phone, role, new AuthRepository.AuthCallback() {
+        authRepo.register(email, password, fullName, phone, role, age, driverLicense, licenseExpiration, new AuthRepository.AuthCallback() {
             @Override public void onSuccess(User user) {
                 new SessionManager(RegisterActivity.this)
-                    .saveSession(user.getUid(), user.getRole(), user.getFullName(), user.getEmail(), user.getPhone());
+                    .saveSession(user.getUid(), user.getRole(), user.getFullName(), user.getEmail(), user.getPhone(), user.getAge(), user.getDriverLicense(), user.getLicenseExpirationDate());
                 startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                 finishAffinity();
             }

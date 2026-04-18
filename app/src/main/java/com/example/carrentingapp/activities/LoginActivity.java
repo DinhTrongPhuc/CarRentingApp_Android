@@ -45,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
         authRepo.login(email, password, new AuthRepository.AuthCallback() {
             @Override public void onSuccess(User user) {
                 new SessionManager(LoginActivity.this)
-                    .saveSession(user.getUid(), user.getRole(), user.getFullName(), user.getEmail(), user.getPhone());
+                    .saveSession(user.getUid(), user.getRole(), user.getFullName(), user.getEmail(), user.getPhone(), user.getAge(), user.getDriverLicense(), user.getLicenseExpirationDate());
                 // FR1.4
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 finish();

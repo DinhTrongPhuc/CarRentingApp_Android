@@ -48,6 +48,9 @@ public class ProfileFragment extends Fragment {
         binding.tvEmail.setText(session.getEmail());
         binding.tvPhone.setText(session.getPhone());
         binding.tvRole.setText(session.isOwner() ? "Chủ xe" : "Người thuê");
+        binding.tvAge.setText(String.valueOf(session.getAge()));
+        binding.tvDriverLicense.setText(session.getDriverLicense());
+        binding.tvLicenseExpiration.setText(session.getLicenseExpiration());
 
         bookingAdapter = new BookingAdapter(requireContext(), bookingList);
         binding.rvBookings.setLayoutManager(new LinearLayoutManager(requireContext()));

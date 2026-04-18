@@ -20,12 +20,12 @@ public class AuthRepository {
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public void register(String email, String password, String fullName, String phone, String role, AuthCallback cb) {
+    public void register(String email, String password, String fullName, String phone, String role, int age, String driverLicense, String licenseExpiration, AuthCallback cb) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener(result -> {
                 FirebaseUser fbUser = result.getUser();
                 if (fbUser == null) { cb.onFailure("Lỗi tạo tài khoản"); return; }
-                User user = new User(fbUser.getUid(), fullName, email, phone, role);
+                User user = new User(fbUser.getUid(), fullName, email, phone, role, age, driverLicense, licenseExpiration);
                 db.collection(Constants.COLLECTION_USERS).document(fbUser.getUid())
                     .set(user)
                     .addOnSuccessListener(v -> cb.onSuccess(user))
