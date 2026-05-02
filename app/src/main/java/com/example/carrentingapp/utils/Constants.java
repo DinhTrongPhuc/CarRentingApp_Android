@@ -1,5 +1,7 @@
 package com.example.carrentingapp.utils;
 
+import com.example.carrentingapp.BuildConfig;
+
 public class Constants {
     // Firestore Collections
     public static final String COLLECTION_USERS = "users";
@@ -60,11 +62,13 @@ public class Constants {
     // Price warning threshold (VND)
     public static final double PRICE_WARNING_THRESHOLD = 5_000_000;
 
-    // Cloudinary Config (Thay thế các giá trị này bằng account của bạn)
+    // Cloudinary Config
     // SECURITY: Never commit real credentials! Use environment variables or local.properties
-    public static final String CLOUD_NAME = "YOUR_CLOUD_NAME";
-    public static final String API_KEY = "YOUR_API_KEY";
-    public static final String API_SECRET = "YOUR_API_SECRET";
+    // These values are read from local.properties via BuildConfig in build.gradle
+    public static final String CLOUD_NAME = BuildConfig.CLOUD_NAME;
+    public static final String API_KEY = BuildConfig.API_KEY;
+    public static final String API_SECRET = BuildConfig.API_SECRET;
+
 
     // Roles
     public static final String ROLE_OWNER = "owner";
